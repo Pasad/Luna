@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Luna - 홈{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+    <!-- 상단 웰컴 배너 -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-md">
+        <h1 class="text-2xl md:text-3xl font-bold mb-2">Luna 대시보드에 오신 것을 환영합니다!</h1>
+        <p class="text-indigo-100 text-sm md:text-base">제주 습도 데이터 지도, 게시판, 앨범 서비스를 이용해 보세요.</p>
+    </div>
+
+    <!-- 핵심 서비스 이동 카드 3종 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 습도 지도 -->
+        <a href="/humidity/" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition group flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-4 text-xl">
+                    💧
+                </div>
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition">제주 습도 지도</h2>
+                <p class="text-sm text-gray-500 mt-2">제주 지역별 관측 지점의 습도 모니터링 정보를 지도에서 확인하세요.</p>
+            </div>
+            <div class="mt-6 flex items-center text-xs font-semibold text-indigo-600">
+                지도 바로가기 &rarr;
+            </div>
+        </a>
+
+        <!-- 게시판 -->
+        <a href="/board/" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition group flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center mb-4 text-xl">
+                    📋
+                </div>
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition">커뮤니티 게시판</h2>
+                <p class="text-sm text-gray-500 mt-2">정보 공유와 소통이 가능한 커뮤니티 공간입니다.</p>
+            </div>
+            <div class="mt-6 flex items-center text-xs font-semibold text-indigo-600">
+                게시판 바로가기 &rarr;
+            </div>
+        </a>
+
+        <!-- 제주 앨범 -->
+        <a href="/albums/" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition group flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center mb-4 text-xl">
+                    📷
+                </div>
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition">제주 포토 앨범</h2>
+                <p class="text-sm text-gray-500 mt-2">제주의 아름다운 사진들을 확인하세요.</p>
+            </div>
+            <div class="mt-6 flex items-center text-xs font-semibold text-indigo-600">
+                앨범 바로가기 &rarr;
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

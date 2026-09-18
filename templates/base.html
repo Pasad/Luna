@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Luna{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col font-sans">
+
+    <!-- 상단 네비게이션 바 -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <!-- 로고 -->
+                <a href="/" class="text-xl font-bold text-indigo-600 hover:text-indigo-700 transition">
+                    Luna
+                </a>
+
+                <!-- 메뉴 목록 (현재 URL 기준으로 active 스타일 동적 부여) -->
+                <div class="flex items-center gap-6 text-sm font-medium">
+                    <!-- 습도 지도 -->
+                    <a href="/humidity/" 
+                       class="py-5 transition border-b-2 {% if request.resolver_match.app_name == 'humidity' or '/humidity/' in request.path %}text-indigo-600 border-indigo-600 font-semibold{% else %}text-gray-600 border-transparent hover:text-gray-900{% endif %}">
+                        습도 지도
+                    </a>
+
+                    <!-- 게시판 -->
+                    <a href="/board/" 
+                       class="py-5 transition border-b-2 {% if request.resolver_match.app_name == 'board' or '/board/' in request.path %}text-indigo-600 border-indigo-600 font-semibold{% else %}text-gray-600 border-transparent hover:text-gray-900{% endif %}">
+                        게시판
+                    </a>
+
+                    <!-- 앨범 -->
+                    <a href="/albums/" 
+                       class="py-5 transition border-b-2 {% if request.resolver_match.app_name == 'albums' or '/albums/' in request.path %}text-indigo-600 border-indigo-600 font-semibold{% else %}text-gray-600 border-transparent hover:text-gray-900{% endif %}">
+                        앨범
+                    </a>
+                </div>
+            </div>
+
+            <!-- 사용자 영역 -->
+            <div class="flex items-center gap-4 text-sm">
+                {% if user.is_authenticated %}
+                    <span class="font-medium text-gray-700"><span class="text-indigo-600 font-semibold">{{ user.username }}</span>님</span>
+                    <form action="{% url 'logout' %}?next={{ request.path }}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="px-3 py-1.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 transition font-medium">
+                            로그아웃
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
+                        로그인
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="flex-grow py-8 px-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</body>
+</html>

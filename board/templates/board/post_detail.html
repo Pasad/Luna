@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - 게시판{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- 본문 카드 -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
+        <!-- 제목 및 작성 정보 -->
+        <div class="border-b border-gray-100 pb-5 mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-3">{{ post.title }}</h1>
+            <div class="flex items-center gap-4 text-xs text-gray-500">
+                <span class="flex items-center gap-1">
+                    <strong class="text-gray-700 font-medium">{{ post.author.username }}</strong>
+                </span>
+                <span>•</span>
+                <span>{{ post.created_at|date:"Y-m-d H:i" }}</span>
+            </div>
+        </div>
+
+        <!-- 본문 내용 -->
+        <div class="text-gray-800 leading-relaxed min-h-[200px] whitespace-pre-line text-base">
+            {{ post.content }}
+        </div>
+
+        <!-- 하단 버튼 영역 -->
+        <div class="flex justify-between items-center pt-6 border-t border-gray-100 mt-8">
+            <a href="{% url 'board:list' %}" 
+               class="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition text-sm">
+                목록으로
+            </a>
+
+            <!-- 본인 작성 글일 경우만 수정 및 삭제 버튼 표시 -->
+            {% if user.is_authenticated and user == post.author %}
+            <div class="flex items-center gap-2">
+                <a href="{% url 'board:update' post.pk %}" 
+                   class="px-4 py-2 bg-indigo-50 text-indigo-600 font-medium rounded-lg border border-indigo-100 hover:bg-indigo-100 transition text-sm">
+                    수정
+                </a>
+                <form action="{% url 'board:delete' post.pk %}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="px-4 py-2 bg-red-50 text-red-600 font-medium rounded-lg border border-red-100 hover:bg-red-100 transition text-sm">
+                        삭제
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}제주 현재 시간 습도 맵 - Luna{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-4">
+    <!-- 타이틀 및 컨트롤 영역 -->
+    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold text-gray-900">제주 현재 시간 습도 맵</h1>
+        </div>
+        <button onclick="location.reload()" 
+                class="px-3.5 py-1.5 bg-indigo-50 text-indigo-600 font-medium rounded-lg border border-indigo-100 hover:bg-indigo-100 transition text-sm flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            새로고침
+        </button>
+    </div>
+
+    <!-- 카카오 지도 영역 -->
+    <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+        <div id="map" class="w-full h-[600px] rounded-lg"></div>
+    </div>
+
+    <!-- 공공데이터 출처 및 라이선스 표기 -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-500 text-center">
+        본 서비스는 기상청 초단기실황 공공데이터를 활용합니다.<br>
+        <span class="font-medium">저작자표시: 기상청 (공공데이터포털) | 이용허락범위: 공공누리 제1유형</span>
+    </div>
+</div>
+
+{{ humidity_list|json_script:"humidity-data" }}
+
+<script>
+    const KAKAO_KEY = "{{ kakao_map_client_id|default:'' }}";
+
+    if (!KAKAO_KEY) {
+        console.error(".env 파일에 KAKAO_MAP_CLIENT_ID가 설정되어 있지 않습니다.");
+    } else {
+        const script = document.createElement('script');
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&autoload=false`;
+        script.onload = () => kakao.maps.load(initKakaoMap);
+        document.head.appendChild(script);
+    }
+
+    function initKakaoMap() {
+        const humidityData = JSON.parse(document.getElementById('humidity-data').textContent);
+        const container = document.getElementById('map');
+        
+        const CENTER_LAT = 33.37, CENTER_LNG = 126.54;
+
+        const options = {
+            center: new kakao.maps.LatLng(CENTER_LAT, CENTER_LNG),
+            level: 10
+        };
+        const map = new kakao.maps.Map(container, options);
+        const bounds = new kakao.maps.LatLngBounds();
+
+        humidityData.forEach(item => {
+            const position = new kakao.maps.LatLng(item.lat, item.lng);
+            bounds.extend(position);
+
+            const marker = new kakao.maps.Marker({
+                position: position,
+                map: map
+            });
+
+            let badgeBg = '#ECFDF5', badgeColor = '#059669';
+            if (item.humidity < 40) {
+                badgeBg = '#FFFBEB'; badgeColor = '#D97706';
+            } else if (item.humidity > 60) {
+                badgeBg = '#EFF6FF'; badgeColor = '#2563EB';
+            }
+
+            const dLat = item.lat - CENTER_LAT;
+            const dLng = item.lng - CENTER_LNG;
+
+            let xAnchor = 0.5;
+            let yAnchor = 0.5;
+            let marginStyle = '';
+
+            if (dLat > 0.05) { 
+                yAnchor = 1.0;
+                marginStyle = 'margin-bottom: 40px;';
+            } else if (dLat < -0.05) { 
+                yAnchor = 0.0;
+                marginStyle = 'margin-top: 15px;';
+            }
+
+            if (dLng > 0.15) { 
+                xAnchor = 0.0;
+                marginStyle += ' margin-left: 15px;';
+            } else if (dLng < -0.15) { 
+                xAnchor = 1.0;
+                marginStyle += ' margin-right: 15px;';
+            }
+
+            const content = `
+                <div style="position: relative; border-radius: 8px; background: white; border: 1px solid #D1D5DB; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); font-family: sans-serif; text-align: center; min-width: 95px; padding: 6px 10px; z-index: 10; ${marginStyle}">
+                    <div style="font-weight: bold; font-size: 12px; color: #111827; margin-bottom: 2px;">${item.region}</div>
+                    <div style="display: inline-block; padding: 2px 6px; border-radius: 9999px; background: ${badgeBg}; color: ${badgeColor}; font-size: 11px; font-weight: 600;">
+                        습도 ${item.humidity}% (${item.status.label})
+                    </div>
+                </div>
+            `;
+
+            const customOverlay = new kakao.maps.CustomOverlay({
+                position: position,
+                content: content,
+                xAnchor: xAnchor,
+                yAnchor: yAnchor
+            });
+
+            customOverlay.setMap(map);
+        });
+
+        if (humidityData.length > 0) {
+            map.setBounds(bounds, 90, 90, 90, 90);
+        }
+    }
+</script>
+{% endblock %}

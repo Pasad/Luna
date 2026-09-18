@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}게시판 - Luna{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-5xl mx-auto">
+    <!-- 헤더 -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold text-gray-900">게시판</h1>
+            <p class="text-sm text-gray-500 mt-1">총 {{ posts.paginator.count }}개의 게시글이 있습니다.</p>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'board:create' %}" class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm">
+            글쓰기
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- 게시글 테이블 -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase">
+                    <th class="py-3 px-4 w-16 text-center">번호</th>
+                    <th class="py-3 px-4">제목</th>
+                    <th class="py-3 px-4 w-32">작성자</th>
+                    <th class="py-3 px-4 w-40 text-center">작성일</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 text-sm">
+                {% for post in posts %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="py-3 px-4 text-center text-gray-500">{{ post.id }}</td>
+                    <td class="py-3 px-4 font-medium text-gray-900">
+                        <a href="{% url 'board:detail' post.pk %}" class="hover:text-indigo-600">
+                            {{ post.title }}
+                        </a>
+                    </td>
+                    <td class="py-3 px-4 text-gray-600">{{ post.author.username }}</td>
+                    <td class="py-3 px-4 text-center text-gray-400 text-xs">
+                        {{ post.created_at|date:"Y-m-d H:i" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="py-8 text-center text-gray-400">등록된 게시글이 없습니다.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- 페이징 컨트롤 영역 -->
+        {% if posts.has_other_pages %}
+        <div class="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
+            <!-- 이전 페이지 버튼 -->
+            {% if posts.has_previous %}
+                <a href="?page={{ posts.previous_page_number }}" class="px-3 py-1.5 border border-gray-200 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+                    이전
+                </a>
+            {% else %}
+                <span class="px-3 py-1.5 border border-gray-100 text-sm text-gray-300 rounded-lg cursor-not-allowed">
+                    이전
+                </span>
+            {% endif %}
+
+            <!-- 페이지 번호 목록 -->
+            <div class="flex items-center gap-1">
+                {% for page_num in posts.paginator.page_range %}
+                    {% if posts.number == page_num %}
+                        <span class="px-3.5 py-1.5 bg-indigo-600 text-white font-semibold text-sm rounded-lg">
+                            {{ page_num }}
+                        </span>
+                    {% else %}
+                        <a href="?page={{ page_num }}" class="px-3.5 py-1.5 text-gray-600 text-sm font-medium hover:bg-gray-100 rounded-lg transition">
+                            {{ page_num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- 다음 페이지 버튼 -->
+            {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}" class="px-3 py-1.5 border border-gray-200 text-sm text-gray-600 rounded-lg hover:bg-gray-50 transition">
+                    다음
+                </a>
+            {% else %}
+                <span class="px-3 py-1.5 border border-gray-100 text-sm text-gray-300 rounded-lg cursor-not-allowed">
+                    다음
+                </span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
